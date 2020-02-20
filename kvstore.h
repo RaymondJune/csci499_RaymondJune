@@ -7,8 +7,10 @@
 
 #include <unordered_map>
 #include <mutex>
+
 #include <grpcpp/grpcpp.h>
-#include "kvstore.grpc.pb.h"
+#include "build/kvstore.grpc.pb.h"
+#include "store.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -25,23 +27,24 @@ using kvstore::GetReply;
 using kvstore::RemoveReply;
 using kvstore::KeyValueStore;
 
-typedef std::unordered_map<std::string, std::string>::iterator UOMIterator;
-
+// key value store service class, which depends on Store class to actually store data
 class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
 public:
+    // gRPC call put
     Status put(ServerContext* context, const PutRequest* request, PutReply* reply) override;
 
+    // gRPC call remove
     Status remove(ServerContext* context, const RemoveRequest* request, RemoveReply* reply) override;
 
+    // gRPC call get
     Status get(ServerContext* context, ServerReaderWriter<GetReply, GetRequest>* stream) override;
 
 private:
-    std::mutex mu_;
-    std::unordered_map<std::string, std::string> umap_; //unordered map used as the in-memory kvstore data structure
+    Store store_; // Store object to store data
 
     // self defined status codes, not_found_ implies remove request failed while already_exist_ implies put request failed
-    Status not_found_ = Status(StatusCode::NOT_FOUND, "key not found");
-    Status already_exist_ = Status(StatusCode::ALREADY_EXISTS, "key already exists");
+    const Status kNotFound_ = Status(StatusCode::NOT_FOUND, "key not found");
+    const Status kAlreadyExist_ = Status(StatusCode::ALREADY_EXISTS, "key already exists");
 };
 
 #endif //CS499_RAYMONDJUNE_KVSTORE_H

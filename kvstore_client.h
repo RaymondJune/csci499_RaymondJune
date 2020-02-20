@@ -6,8 +6,7 @@
 #define CS499_RAYMONDJUNE_KVSTORE_CLIENT_H
 
 #include <grpcpp/grpcpp.h>
-
-#include "kvstore.grpc.pb.h"
+#include "build/kvstore.grpc.pb.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -33,7 +32,7 @@ public:
     // put new key-value pair into store
     bool Put(const std::string& key, const std::string& value);
 
-    // get the associated values for keys
+    // get the associated values for keys, if a key does not exist, an empty string is returned
     std::vector<std::string> Get(const std::vector<std::string>& keys);
 
 private:

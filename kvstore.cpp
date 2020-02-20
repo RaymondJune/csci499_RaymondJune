@@ -3,30 +3,29 @@
 //
 #include "kvstore.h"
 
+#include "glog/logging.h"
+
 Status KeyValueStoreServiceImpl::put(ServerContext* context, const PutRequest* request, PutReply* reply) {
-    mu_.lock();
-    std::pair<UOMIterator, bool> result = umap_.insert(std::make_pair(request->key(), request->value()));
-    mu_.unlock();
-    return result.second? (Status::OK) : already_exist_;
+    bool res = store_.Put(request->key(), request->value());
+    if (res) {
+        LOG(INFO) << "successfully add (key, value) pair, (" << request->key() << ", " << request->value() << ") into kvstore" << std::endl;
+    }
+    return res? (Status::OK) : kAlreadyExist_;
 }
 
 Status KeyValueStoreServiceImpl::remove(ServerContext* context, const RemoveRequest* request, RemoveReply* reply) {
-    mu_.lock();
-    size_t k = umap_.erase(request->key());
-    mu_.unlock();
-    return k == 1? (Status::OK): not_found_;
+    bool res = store_.Remove(request->key());
+    if (res) {
+        LOG(INFO) << "successfully removed key, (" << request->key() << ") from kvstore" << std::endl;
+    }
+    return res? (Status::OK): kNotFound_;
 }
 
 Status KeyValueStoreServiceImpl::get(ServerContext* context, ServerReaderWriter<GetReply, GetRequest>* stream) {
     GetRequest request;
     GetReply reply;
     while (stream->Read(&request)) {
-        auto iter = umap_.find(request.key());
-        if (iter == umap_.end()) {
-            reply.set_value("");
-        } else {
-            reply.set_value(iter->second);
-        }
+        reply.set_value(store_.Get(request.key()));
         stream->Write(reply);
     }
 
