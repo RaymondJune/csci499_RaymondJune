@@ -9,6 +9,4 @@ enum EVENT {
     REGISTER, WARBLE, FOLLOW, READ, PROFILE
 };
 
-std::string event_functions[] = {"registeruser", "warble", "follow", "read", "profile"} ;
-
 #endif //CS499_RAYMONDJUNE_EVENT_H

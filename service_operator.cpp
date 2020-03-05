@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
     gflags::SetUsageMessage("usage example: ./bootstrap [--default] | [--hook=false --event 0]");
     gflags::SetVersionString("1.0.0");
     gflags::ParseCommandLineFlags(&argc, &argv, true);
+    std::string event_functions[] = {"registeruser", "warble", "follow", "read", "profile"};
     if (FLAGS_default) {
         LOG(INFO) << "default hooking..." << std::endl;
         bootstrap.Hook(EVENT::REGISTER, event_functions[EVENT::REGISTER]);

@@ -3,7 +3,9 @@
 //
 
 #include "kvstore_client.h"
+
 #include <thread>
+
 #include <glog/logging.h>
 
 KeyValueStoreClient::KeyValueStoreClient(std::shared_ptr<Channel> channel)
@@ -29,7 +31,6 @@ bool KeyValueStoreClient::Remove(const std::string& key) {
         LOG(ERROR) << status.error_code() << ": " << status.error_message()
                    << std::endl;
         return false;
-
     }
 }
 
