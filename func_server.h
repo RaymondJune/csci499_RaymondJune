@@ -8,6 +8,8 @@
 #include <grpcpp/grpcpp.h>
 
 #include "build/func.grpc.pb.h"
+#include "kvstore_client.h"
+#include "warble_server.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -29,18 +31,22 @@ using func::UnhookRequest;
  * (service_operator), used by func
  */
 class FuncServiceImpl final : public FuncService::Service {
- public:
-  // hook gRPC call in server side
-  Status hook(ServerContext* context, const HookRequest* request,
-              HookReply* reply) override;
+public:
+    // constructor, initialize kvstore client
+    FuncServiceImpl();
 
-  // unhook gRPC call in server side
-  Status unhook(ServerContext* context, const UnhookRequest* request,
-                UnhookReply* reply) override;
+    // hook gRPC call in server side
+    Status hook(ServerContext* context, const HookRequest* request, HookReply* reply) override;
 
-  // event gRPC call in server side
-  Status event(ServerContext* context, const EventRequest* request,
-               EventReply* reply) override;
+    // unhook gRPC call in server side
+    Status unhook(ServerContext* context, const UnhookRequest* request, UnhookReply* reply) override;
+
+    // event gRPC call in server side
+    Status event(ServerContext* context, const EventRequest* request, EventReply* reply) override;
+
+private:
+    KeyValueStoreClient kvstore_;
+    WarbleServer warbleServer_;
 };
 
 #endif  // CS499_RAYMONDJUNE_FUNC_SERVER_H

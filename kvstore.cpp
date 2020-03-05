@@ -5,15 +5,14 @@
 
 #include "glog/logging.h"
 
-Status KeyValueStoreServiceImpl::put(ServerContext* context,
-                                     const PutRequest* request,
-                                     PutReply* reply) {
-  bool res = store_.Put(request->key(), request->value());
-  if (res) {
-    LOG(INFO) << "successfully add (key, value) pair, (" << request->key()
-              << ", " << request->value() << ") into kvstore" << std::endl;
-  }
-  return res ? (Status::OK) : kAlreadyExist_;
+Status KeyValueStoreServiceImpl::put(ServerContext* context, const PutRequest* request, PutReply* reply) {
+    bool res = store_.Put(request->key(), request->value());
+    if (res) {
+        LOG(INFO) << "successfully add (key, value) pair, (" << request->key() << ", " << request->value() << ") into kvstore" << std::endl;
+    } else {
+        LOG(INFO) << "successfully change (key, value) pair, (" << request->key() << ", " << request->value() << ") into kvstore" << std::endl;
+    }
+    return Status::OK;
 }
 
 Status KeyValueStoreServiceImpl::remove(ServerContext* context,

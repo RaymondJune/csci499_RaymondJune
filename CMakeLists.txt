@@ -48,11 +48,12 @@ endforeach()
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 add_executable(kvstore_server kvstore_server.cpp ${kvstore_proto_srcs} ${kvstore_grpc_srcs} kvstore.cpp kvstore.h store.cpp store.h)
-add_executable(func func.cpp ${kvstore_proto_srcs} ${kvstore_grpc_srcs} ${func_proto_srcs} ${func_grpc_srcs} kvstore_client.cpp kvstore_client.h func_server.cpp func_server.h)
+add_executable(func func.cpp ${kvstore_proto_srcs} ${kvstore_grpc_srcs} ${func_proto_srcs} ${func_grpc_srcs} ${warble_proto_srcs} ${warble_grpc_srcs} kvstore_client.cpp kvstore_client.h func_server.cpp func_server.h warble_server.cpp warble_server.h)
 add_executable(bootstrap ${func_proto_srcs} ${func_grpc_srcs} bootstrap.cpp bootstrap.h service_operator.cpp event.h)
 add_executable(store_test store.cpp store.h store_test.cpp)
+add_executable(warble warble.cpp user_client.cpp user_client.h ${warble_proto_srcs} ${warble_grpc_srcs} ${func_proto_srcs} ${func_grpc_srcs} event.h)
 
-foreach(_target kvstore_server func bootstrap store_test)
+foreach(_target kvstore_server func bootstrap store_test warble)
     target_include_directories(${_target}
             PRIVATE
             ${GTEST_INCLUDE_DIRS}
