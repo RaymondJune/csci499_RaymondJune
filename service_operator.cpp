@@ -24,8 +24,6 @@ static bool IsValidEvents(const char *flagname, const std::string &value)
 }
 DEFINE_validator(events, &IsValidEvents);
 
-//TODO: validator about default and hook are mutual exclusive
-
 int main(int argc, char** argv) {
     BootstrapClient bootstrap(grpc::CreateChannel(
             "localhost:50000", grpc::InsecureChannelCredentials()));

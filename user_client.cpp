@@ -63,15 +63,11 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
                 std::cout << "successfully get profile" << std::endl;
                 std::cout << "followers: " << std::endl;
                 for (const std::string& follower: profileReply.followers()) {
-                    if (!follower.empty()) {
-                        std::cout << follower << std::endl;
-                    }
+                    std::cout << follower << std::endl;
                 }
                 std::cout << "followings: " << std::endl;
                 for (const std::string& following: profileReply.following()) {
-                    if (!following.empty()) {
-                        std::cout << following << std::endl;
-                    }
+                    std::cout << following << std::endl;
                 }
             } else {
                 std::cout << "reply message parse error" << std::endl;

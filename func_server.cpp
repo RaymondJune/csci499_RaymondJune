@@ -24,7 +24,6 @@ Status FuncServiceImpl::unhook(ServerContext* context, const UnhookRequest* requ
 }
 
 Status FuncServiceImpl::event(ServerContext* context, const EventRequest* request, EventReply* reply) {
-    // TODO: deal with cases where the corresponding events are not hooked
     int event_type = request->event_type();
     std::string event_function = kvstore_.Get(std::vector<std::string>(1, std::to_string(event_type)))[0];
     LOG(INFO) << "calling " << event_function << std::endl;
@@ -45,6 +44,9 @@ Status FuncServiceImpl::event(ServerContext* context, const EventRequest* reques
             payload->PackFrom(warbleReply);
         }
         reply->set_allocated_payload(payload);
+    } else {
+        // event is not hooked
+        return Status(StatusCode::NOT_FOUND, "the event is not hooked");
     }
     return Status::OK;
 }

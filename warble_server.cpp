@@ -87,8 +87,10 @@ std::optional<std::string> WarbleServer::Follow(const google::protobuf::Any& pay
         std::string followers = kvstore_.Get(std::vector<std::string>(1, to_follow + "_follower"))[0];
         kvstore_.Put(to_follow + "_follower", followers + " " + username);
         LOG(INFO) << "successfully follow " << to_follow << std::endl;
+    } else {
+        LOG(WARNING) << "follow " << to_follow << " again" << std::endl;
     }
-    LOG(WARNING) << "follow " << to_follow << "again" << std::endl;
+
     return std::nullopt;
 }
 
@@ -130,10 +132,14 @@ std::optional<std::string> WarbleServer::Profile(const google::protobuf::Any& pa
     std::stringstream ss_followers(followers);
     std::string tmp;
     while (getline(ss, tmp, ' ')) {
-        reply.add_following(tmp);
+        if (!tmp.empty()) {
+            reply.add_following(tmp);
+        }
     }
     while (getline(ss_followers, tmp, ' ')) {
-        reply.add_followers(tmp);
+        if (!tmp.empty()) {
+            reply.add_followers(tmp);
+        }
     }
     return reply.SerializeAsString();
 }
