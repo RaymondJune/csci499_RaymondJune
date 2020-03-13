@@ -78,6 +78,15 @@ make
 sudo make install 
 ```
 
+(3) glog
+- change working directory to a directory which is in the same level as grpc directory
+```
+git clone https://github.com/google/glog.git
+cd glog
+cmake .
+make
+sudo make install
+```
 ## ⛏️ Build <a name = "built_using"></a>
 - Use cmake to build the project
 ```
