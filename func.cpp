@@ -34,7 +34,8 @@ void RunServer() {
 }
 
 int main(int argc, char** argv) {
-  fLS::FLAGS_log_dir = "/Users/zengruim/CLionProjects/cs499_raymondjune/logs";
+  //  fLS::FLAGS_log_dir =
+  //  "/Users/zengruim/CLionProjects/cs499_raymondjune/logs";
   google::InitGoogleLogging(argv[0]);
   RunServer();
   return 0;
