@@ -39,9 +39,21 @@
 sudo apt-get install build-essential autoconf libtool pkg-config 
 sudo apt install curl 
 install bazel
+  download "bazel-2.2.0-installer-linux-x86_64.sh"
+  chmod +x bazel-2.2.0-installer-linux-x86_64.sh
+  ./bazel-2.2.0-installer-linux-x86_64.sh --user
+  export PATH="$PATH:$HOME/bin"
 install cmake
+  download "cmake-3.16.5-Linux-x86_64.sh"
+  chmod +x cmake-3.16.5-Linux-x86_64.sh
+  sudo ./cmake-3.16.5-Linux-x86_64.sh --prefix=/usr/local/ --exclude-subdir
+  export PATH="$PATH:/usr/local/bin"
 install python and pip
-install g++ and build-essentials
+  apt install python
+  apt install python-pip
+install g++ and build-essential
+  sudo apt install g++
+  sudo apt install build-essential
 ```
 
 ### Installing
@@ -78,11 +90,20 @@ make
 sudo make install 
 ```
 
+(3) glog
+- change working directory to a directory which is in the same level as grpc directory
+```
+git clone https://github.com/google/glog.git
+cd glog
+cmake .
+make
+sudo make install
+```
 ## ⛏️ Build <a name = "built_using"></a>
 - Use cmake to build the project
 ```
 mkdir build && cd build 
-cmake -DGTEST_ROOT=PATH/TO/GTEST/ROOT .. 
+cmake .. 
 make 
 ```
 
