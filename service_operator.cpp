@@ -26,38 +26,38 @@ static bool IsValidEvents(const char *flagname, const std::string &value) {
 }
 DEFINE_validator(events, &IsValidEvents);
 
-int main(int argc, char** argv) {
-    BootstrapClient bootstrap(grpc::CreateChannel(
-            "localhost:50000", grpc::InsecureChannelCredentials()));
-    gflags::SetUsageMessage("usage example: ./bootstrap [--default] | [--hook=false --event 0]");
-    gflags::SetVersionString("1.0.0");
-    gflags::ParseCommandLineFlags(&argc, &argv, true);
-    std::string event_functions[] = {"registeruser", "warble", "follow", "read", "profile"};
-    if (FLAGS_default) {
-        LOG(INFO) << "default hooking..." << std::endl;
-        bootstrap.Hook(EVENT::REGISTER, event_functions[EVENT::REGISTER]);
-        bootstrap.Hook(EVENT::WARBLE, event_functions[EVENT::WARBLE]);
-        bootstrap.Hook(EVENT::FOLLOW, event_functions[EVENT::FOLLOW]);
-        bootstrap.Hook(EVENT::READ, event_functions[EVENT::READ]);
-        bootstrap.Hook(EVENT::PROFILE, event_functions[EVENT::PROFILE]);
-    } else if (FLAGS_hook){
-        LOG(INFO) << "user defined hooking..." << std::endl;
-        size_t i = 0;
-        std::string value = FLAGS_events;
-        while (i < value.size()) {
-            bootstrap.Hook(value[i] - '0', event_functions[value[i] - '0']);
-            i += 2;
-        }
-        LOG(INFO) << "user defined hooking done." << std::endl;
-    } else {
-        LOG(INFO) << "user defined unhooking..." << std::endl;
-        size_t i = 0;
-        std::string value = FLAGS_events;
-        while (i < value.size()) {
-            bootstrap.Unhook(value[i] - '0');
-            i += 2;
-        }
-        LOG(INFO) << "user defined unhooking done." << std::endl;
+int main(int argc, char **argv) {
+  BootstrapClient bootstrap(grpc::CreateChannel(
+      "localhost:50000", grpc::InsecureChannelCredentials()));
+  gflags::SetUsageMessage(
+      "usage example: ./bootstrap [--default] | [--hook=false --event 0]");
+  gflags::SetVersionString("1.0.0");
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  std::string event_functions[] = {"registeruser", "warble", "follow", "read",
+                                   "profile"};
+  if (FLAGS_default) {
+    LOG(INFO) << "default hooking..." << std::endl;
+    bootstrap.Hook(EVENT::REGISTER, event_functions[EVENT::REGISTER]);
+    bootstrap.Hook(EVENT::WARBLE, event_functions[EVENT::WARBLE]);
+    bootstrap.Hook(EVENT::FOLLOW, event_functions[EVENT::FOLLOW]);
+    bootstrap.Hook(EVENT::READ, event_functions[EVENT::READ]);
+    bootstrap.Hook(EVENT::PROFILE, event_functions[EVENT::PROFILE]);
+  } else if (FLAGS_hook) {
+    LOG(INFO) << "user defined hooking..." << std::endl;
+    size_t i = 0;
+    std::string value = FLAGS_events;
+    while (i < value.size()) {
+      bootstrap.Hook(value[i] - '0', event_functions[value[i] - '0']);
+      i += 2;
+    }
+    LOG(INFO) << "user defined hooking done." << std::endl;
+  } else {
+    LOG(INFO) << "user defined unhooking..." << std::endl;
+    size_t i = 0;
+    std::string value = FLAGS_events;
+    while (i < value.size()) {
+      bootstrap.Unhook(value[i] - '0');
+      i += 2;
     }
     LOG(INFO) << "user defined unhooking done." << std::endl;
   }

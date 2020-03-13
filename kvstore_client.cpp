@@ -4,34 +4,34 @@
 
 #include "kvstore_client.h"
 
-#include <thread>
-
 #include <glog/logging.h>
+
+#include <thread>
 
 KeyValueStoreClient::KeyValueStoreClient(std::shared_ptr<Channel> channel)
     : stub_(KeyValueStore::NewStub(channel)) {}
 
 bool KeyValueStoreClient::Remove(const std::string& key) {
-    RemoveRequest request;
-    request.set_key(key);
+  RemoveRequest request;
+  request.set_key(key);
 
-    RemoveReply reply;
+  RemoveReply reply;
 
-    // Context for the client. It could be used to convey extra information to
-    // the server and/or tweak certain RPC behaviors.
-    ClientContext context;
+  // Context for the client. It could be used to convey extra information to
+  // the server and/or tweak certain RPC behaviors.
+  ClientContext context;
 
-    // The actual RPC.
-    Status status = stub_->remove(&context, request, &reply);
+  // The actual RPC.
+  Status status = stub_->remove(&context, request, &reply);
 
-    // Act upon its status.
-    if (status.ok()) {
-        return true;
-    } else {
-        LOG(ERROR) << status.error_code() << ": " << status.error_message()
-                   << std::endl;
-        return false;
-    }
+  // Act upon its status.
+  if (status.ok()) {
+    return true;
+  } else {
+    LOG(ERROR) << status.error_code() << ": " << status.error_message()
+               << std::endl;
+    return false;
+  }
 }
 
 bool KeyValueStoreClient::Put(const std::string& key,
