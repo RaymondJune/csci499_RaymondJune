@@ -38,8 +38,8 @@
 ```
 sudo apt-get install build-essential autoconf libtool pkg-config 
 sudo apt install curl 
-install bazel
-install cmake
+install bazel, "bazel-2.2.0-installer-linux-x86_64.sh"
+install cmake, "cmake-3.16.5-Linux-x86_64.sh"
 install python and pip
 install g++ and build-essentials
 ```
