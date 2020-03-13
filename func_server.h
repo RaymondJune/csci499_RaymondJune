@@ -6,6 +6,7 @@
 #define CS499_RAYMONDJUNE_FUNC_SERVER_H
 
 #include <grpcpp/grpcpp.h>
+
 #include "build/func.grpc.pb.h"
 
 using grpc::Server;
@@ -15,28 +16,31 @@ using grpc::ServerReaderWriter;
 using grpc::Status;
 using grpc::StatusCode;
 
-using func::HookRequest;
-using func::UnhookRequest;
-using func::EventRequest;
-using func::HookReply;
-using func::UnhookReply;
 using func::EventReply;
+using func::EventRequest;
 using func::FuncService;
+using func::HookReply;
+using func::HookRequest;
+using func::UnhookReply;
+using func::UnhookRequest;
 
 /*
- *  Service class which gets hook/unhook request from bootstrap client (service_operator), used by func
+ *  Service class which gets hook/unhook request from bootstrap client
+ * (service_operator), used by func
  */
 class FuncServiceImpl final : public FuncService::Service {
-public:
-    // hook gRPC call in server side
-    Status hook(ServerContext* context, const HookRequest* request, HookReply* reply) override;
+ public:
+  // hook gRPC call in server side
+  Status hook(ServerContext* context, const HookRequest* request,
+              HookReply* reply) override;
 
-    // unhook gRPC call in server side
-    Status unhook(ServerContext* context, const UnhookRequest* request, UnhookReply* reply) override;
+  // unhook gRPC call in server side
+  Status unhook(ServerContext* context, const UnhookRequest* request,
+                UnhookReply* reply) override;
 
-    // event gRPC call in server side
-    Status event(ServerContext* context, const EventRequest* request, EventReply* reply) override;
-
+  // event gRPC call in server side
+  Status event(ServerContext* context, const EventRequest* request,
+               EventReply* reply) override;
 };
 
-#endif //CS499_RAYMONDJUNE_FUNC_SERVER_H
+#endif  // CS499_RAYMONDJUNE_FUNC_SERVER_H

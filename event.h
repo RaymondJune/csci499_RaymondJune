@@ -5,10 +5,9 @@
 #ifndef CS499_RAYMONDJUNE_EVENT_H
 #define CS499_RAYMONDJUNE_EVENT_H
 
-enum EVENT {
-    REGISTER, WARBLE, FOLLOW, READ, PROFILE
-};
+enum EVENT { REGISTER, WARBLE, FOLLOW, READ, PROFILE };
 
-std::string event_functions[] = {"registeruser", "warble", "follow", "read", "profile"} ;
+std::string event_functions[] = {"registeruser", "warble", "follow", "read",
+                                 "profile"};
 
-#endif //CS499_RAYMONDJUNE_EVENT_H
+#endif  // CS499_RAYMONDJUNE_EVENT_H
