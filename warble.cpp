@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
       "--user alice --profile");
   gflags::SetVersionString("1.0.0");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-
+  google::InitGoogleLogging(argv[0]);
   auto* payload = new google::protobuf::Any();
 
   // users need to login at frst so as to do tasks except for registeruser
