@@ -1,0 +1,6 @@
+.clang-format
+.idea/
+Makefile
+build/
+cmake-build-debug/
+logs/

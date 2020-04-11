@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 
+#include "gflags/gflags.h"
 #include "kvstore.h"
 
 using grpc::Server;
@@ -24,16 +25,20 @@ using kvstore::PutRequest;
 using kvstore::RemoveReply;
 using kvstore::RemoveRequest;
 
+KeyValueStoreServiceImpl* kvService;
+std::optional<std::string> filename;
+
+DEFINE_string(store, "", "a file path used to make store disk persistent");
+
 void RunServer() {
   std::string server_address("0.0.0.0:50001");
-  KeyValueStoreServiceImpl service;
 
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
-  builder.RegisterService(&service);
+  builder.RegisterService(kvService);
   // Finally assemble the server.
   std::unique_ptr<Server> server(builder.BuildAndStart());
 
@@ -44,10 +49,26 @@ void RunServer() {
   server->Wait();
 }
 
+void signal_handler(int signal_num) {
+  LOG(INFO) << "The interrupt signal is (" << signal_num << "). \n";
+  kvService->dumpStoreToFile(filename);
+  // terminate program
+  exit(signal_num);
+}
+
 int main(int argc, char** argv) {
   //  fLS::FLAGS_log_dir =
   //  "/Users/zengruim/CLionProjects/cs499_raymondjune/logs";
   google::InitGoogleLogging(argv[0]);
+  gflags::SetUsageMessage(
+      "usage example: ./kvstore_server [--store output.txt]");
+  gflags::SetVersionString("1.0.0");
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  signal(SIGINT, signal_handler);
+  filename =
+      FLAGS_store.empty() ? std::nullopt : std::make_optional(FLAGS_store);
+  KeyValueStoreServiceImpl service(filename);
+  kvService = &service;
   RunServer();
   return 0;
 }

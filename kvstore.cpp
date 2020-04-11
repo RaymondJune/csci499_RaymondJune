@@ -5,6 +5,10 @@
 
 #include "glog/logging.h"
 
+KeyValueStoreServiceImpl::KeyValueStoreServiceImpl(
+    std::optional<std::string> filename)
+    : store_(filename) {}
+
 Status KeyValueStoreServiceImpl::put(ServerContext* context,
                                      const PutRequest* request,
                                      PutReply* reply) {
@@ -40,4 +44,9 @@ Status KeyValueStoreServiceImpl::get(
   }
 
   return Status::OK;
+}
+
+void KeyValueStoreServiceImpl::dumpStoreToFile(
+    std::optional<std::string>& filename) {
+  store_.dumpStoreToFile(filename);
 }

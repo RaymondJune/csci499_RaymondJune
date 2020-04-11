@@ -32,6 +32,7 @@ using kvstore::RemoveRequest;
 // data
 class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
  public:
+  explicit KeyValueStoreServiceImpl(std::optional<std::string> filename);
   // gRPC call put
   Status put(ServerContext* context, const PutRequest* request,
              PutReply* reply) override;
@@ -43,6 +44,10 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
   // gRPC call get
   Status get(ServerContext* context,
              ServerReaderWriter<GetReply, GetRequest>* stream) override;
+
+  // if the key-value store service is cleanly terminated, dump store pairs into
+  // given file
+  void dumpStoreToFile(std::optional<std::string>& filename);
 
  private:
   Store store_;  // Store object to store data
