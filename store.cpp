@@ -13,6 +13,13 @@ Store::Store(std::optional<std::string>& filename) {
     std::string key;
     std::string val;
     fin.open(filename.value());
+    if (!fin.is_open()) {
+      LOG(WARNING)
+          << "Unable to open file " << filename.value()
+          << " or the file does not exist. Initialize an empty key value store"
+          << std::endl;
+      return;
+    }
     while (fin) {
       getline(fin, line);
       int pos = line.find(':');
@@ -66,6 +73,10 @@ void Store::dumpStoreToFile(std::optional<std::string>& filename) {
   }
   std::ofstream fout;
   fout.open(filename.value());
+  if (!fout.is_open()) {
+    LOG(ERROR) << "Unable to open file" << filename.value() << std::endl;
+    exit(1);  // terminate with error
+  }
   for (auto const& [key, val] : umap_) {
     if (!key.empty()) {
       fout << key << ":" << val << std::endl;
