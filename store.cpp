@@ -57,6 +57,7 @@ std::string Store::Get(const std::string& key) {
   }
   return res;
 }
+
 void Store::dumpStoreToFile(std::optional<std::string>& filename) {
   if (filename == std::nullopt) {
     LOG(INFO) << "flag --store is not set,  shut down kvstore service directly"

@@ -12,6 +12,8 @@
 // Store class used by key value store service implementation class
 class Store {
  public:
+  // constructor for Store class, if filename is not empty, loading preexisting
+  // entries, otherwise create an empty key value store
   explicit Store(std::optional<std::string>& filename);
   // when key does not exist, add (key, value) pair into unordered map, return
   // true, otherwise update the value but return false

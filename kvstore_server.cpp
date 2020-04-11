@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
       "usage example: ./kvstore_server [--store output.txt]");
   gflags::SetVersionString("1.0.0");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  signal(SIGINT, signal_handler);
+  signal(SIGINT, signal_handler);  // register signal handler for SIGINT
   filename =
       FLAGS_store.empty() ? std::nullopt : std::make_optional(FLAGS_store);
   KeyValueStoreServiceImpl service(filename);
