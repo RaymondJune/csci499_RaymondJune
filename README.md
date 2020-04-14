@@ -16,7 +16,7 @@
 
 ---
 
-<p align="center">  First milestone of USC CS499 2020Spring Project. <a href = "https://docs.google.com/document/d/1TCxCbmyiO5mpiuvH8q9FZMXzt7nT2Drwecho8i3bW6g/edit#">Project Description</a>.
+<p align="center">  First two milestone of USC CS499 2020Spring Project. <a href = "https://docs.google.com/document/d/1TCxCbmyiO5mpiuvH8q9FZMXzt7nT2Drwecho8i3bW6g/edit#">Project Description</a>.
     <br> 
 </p>
 
@@ -26,6 +26,7 @@
 - [Build](#built_using)
 - [Test](#tests)
 - [Usage](#usage)
+- [Phase 2](#phase)
 - [Authors](#authors)
 - [Acknowledgments](#acknowledgement)
 
@@ -138,6 +139,10 @@ make
 ./warble --user Bob --profile
 ```
 
+## 🎈 Phase 2 <a name="phase"></a>
+- Ephemeral warble code: My code in phase 1 already adheres to this and my partner has verified it in code review.
+- Key-value store disk persistence: Update code and unit tests
+
 ## ✍️ Authors <a name = "authors"></a>
 
 - [@Ruimin Zeng](https://github.com/RaymondJune) - Idea & Initial work
@@ -148,3 +153,4 @@ make
 - [@tianhanl](https://github.com/tianhanl)
 - [@barath](https://github.com/barath)
 - [@apetranik](https://github.com/apetranik)
+- [@priyankaranke](https://github.com/priyankaranke)
