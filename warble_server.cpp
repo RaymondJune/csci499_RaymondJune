@@ -200,6 +200,7 @@ bool WarbleServer::Check(std::stringstream& ss, const std::string& toCheck) {
   }
   return exist;
 }
+
 bool WarbleServer::ValidateUser(const std::string& username) {
   std::string usernames = kvstore_.Get(std::vector<std::string>(1, "users"))[0];
   std::stringstream ss(usernames);
