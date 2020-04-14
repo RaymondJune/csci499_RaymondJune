@@ -77,6 +77,7 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
   } else {
     LOG(ERROR) << status.error_code() << ": " << status.error_message()
                << std::endl;
+    std::cout << status.error_message() << std::endl;
     return false;
   }
 }

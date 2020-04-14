@@ -20,12 +20,19 @@ Store::Store(std::optional<std::string>& filename) {
           << std::endl;
       return;
     }
-    while (fin) {
-      getline(fin, line);
-      int pos = line.find(':');
-      key = line.substr(0, pos);
-      val = line.substr(pos + 1);
+    std::stringstream ss;
+    ss << fin.rdbuf();
+    std::string s = ss.str();
+    fin.close();
+    size_t pos = 0;
+    int p = 0;
+    while ((pos = s.find(kDelimiter)) != std::string::npos) {
+      line = s.substr(0, pos);
+      p = line.find(':');
+      key = line.substr(0, p);
+      val = line.substr(p + 1);
       umap_[key] = val;
+      s.erase(0, pos + kDelimiter.length());
     }
     LOG(INFO) << "load entries from the specified previously-stored file "
               << filename.value() << std::endl;
@@ -79,7 +86,7 @@ void Store::dumpStoreToFile(std::optional<std::string>& filename) {
   }
   for (auto const& [key, val] : umap_) {
     if (!key.empty()) {
-      fout << key << ":" << val << std::endl;
+      fout << key << ":" << val << kDelimiter;
     }
   }
   fout.close();

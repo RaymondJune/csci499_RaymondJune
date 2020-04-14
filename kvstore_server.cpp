@@ -70,5 +70,6 @@ int main(int argc, char** argv) {
   KeyValueStoreServiceImpl service(filename);
   kvService = &service;
   RunServer();
+  gflags::ShutDownCommandLineFlags();
   return 0;
 }

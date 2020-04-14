@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
     // eg: ./warble --user alice --read warble_id_1583442592195709
     LOG(INFO) << "Reads warble id " << FLAGS_read << std::endl;
     ReadRequest request;
+    request.set_username(FLAGS_user);
     request.set_warble_id(FLAGS_read);
     payload->PackFrom(request);
     userClient.Event(EVENT::READ, payload);
@@ -94,7 +95,8 @@ int main(int argc, char** argv) {
                  "world!'\n./warble --user alice --warble 'hello, world!' "
                  "--reply warble_id_1583442592195709\n./warble --user alice "
                  "--follow Bob\n./warble --read "
-                 "warble_id_1583442592195709\n./warble --user alice --profile"
+                 "warble_id_1583442592195709 --user alice\n./warble --user "
+                 "alice --profile"
               << std::endl;
   }
 

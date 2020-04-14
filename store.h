@@ -35,6 +35,7 @@ class Store {
                    // used by multiple threads
   std::unordered_map<std::string, std::string>
       umap_;  // unordered map used as the in-memory kvstore data structure
+  std::string kDelimiter = "117169677822943856980673695456521126221";
 };
 
 #endif  // CS499_RAYMONDJUNE_STORE_H

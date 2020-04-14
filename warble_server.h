@@ -60,6 +60,9 @@ class WarbleServer {
   // private helper function to check if the string toCheck exists in the
   // stringstream
   bool Check(std::stringstream& ss, const std::string& toCheck);
+
+  // private helper function to check if the user is registered
+  bool ValidateUser(const std::string& username);
 };
 
 #endif  // CS499_RAYMONDJUNE_WARBLE_SERVER_H

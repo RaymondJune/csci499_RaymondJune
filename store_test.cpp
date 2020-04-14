@@ -20,6 +20,7 @@ class StoreTest : public ::testing::Test {
   }
   std::optional<std::string> filename = std::nullopt;
   std::unique_ptr<Store> store_ = std::make_unique<Store>(filename);
+  std::string kDelimiter = "117169677822943856980673695456521126221";
 };
 
 // test constructor of class Store
@@ -27,11 +28,12 @@ TEST_F(StoreTest, constructorTest) {
   std::ofstream fout;
   fout.open("test_input.txt");
   fout << "users:"
-       << "alice bob cindy" << std::endl;
+       << "alice bob cindy" << kDelimiter;
   fout << "followers:"
-       << "raymond june" << std::endl;
+       << "raymond june" << kDelimiter;
   fout << "warble1:"
-       << "hope coronavirus disappear asap" << std::endl;
+       << "hope coronavirus disappear asap" << kDelimiter;
+  fout.close();
   std::optional<std::string> filename = std::make_optional("test_input.txt");
   std::unique_ptr<Store> store = std::make_unique<Store>(filename);
   ASSERT_EQ("alice bob cindy", store->Get("users"));

@@ -22,6 +22,7 @@ std::optional<std::string> WarbleServer::Registeruser(
     LOG(INFO) << "successfully register " << username << std::endl;
   } else {
     LOG(WARNING) << username << " is already registered" << std::endl;
+    return username + " is already registered";
   }
   return std::nullopt;
 }
@@ -33,8 +34,22 @@ std::optional<std::string> WarbleServer::PublishWarble(
   payload.UnpackTo(&request);
 
   std::string username = request.username();
+
+  if (!ValidateUser(username)) {
+    LOG(ERROR) << "the user " << username << "is not registered" << std::endl;
+    return "the user is not registered";
+  }
+
   std::string text = request.text();
   std::string parent_id = request.parent_id();
+
+  if (parent_id != "warble_id_root") {
+    std::string content =
+        kvstore_.Get(std::vector<std::string>(1, parent_id + "_content"))[0];
+    if (content.empty()) {
+      return "the reply id is invalid";
+    }
+  }
 
   auto* warble = new Warble();
   warble->set_username(username);
@@ -67,11 +82,24 @@ std::optional<std::string> WarbleServer::Follow(
   FollowRequest request;
   payload.UnpackTo(&request);
   std::string username = request.username();
+
+  if (!ValidateUser(username)) {
+    LOG(ERROR) << "the user " << username << "is not registered" << std::endl;
+    return "the user is not registered";
+  }
+
   std::string to_follow = request.to_follow();
+
+  if (username == to_follow) {
+    return "cannot follow yourself";
+  }
   std::string followings =
       kvstore_.Get(std::vector<std::string>(1, username + "_following"))[0];
   std::stringstream ss(followings);
   if (!Check(ss, to_follow)) {
+    if (!ValidateUser(to_follow)) {
+      return "cannot follow because your target is not registered";
+    }
     kvstore_.Put(username + "_following", followings + " " + to_follow);
     std::string followers =
         kvstore_.Get(std::vector<std::string>(1, to_follow + "_follower"))[0];
@@ -79,6 +107,7 @@ std::optional<std::string> WarbleServer::Follow(
     LOG(INFO) << "successfully follow " << to_follow << std::endl;
   } else {
     LOG(WARNING) << "follow " << to_follow << " again" << std::endl;
+    return "follow " + to_follow + " again";
   }
 
   return std::nullopt;
@@ -89,7 +118,22 @@ std::optional<std::string> WarbleServer::Read(
     const google::protobuf::Any& payload) {
   ReadRequest request;
   payload.UnpackTo(&request);
+
+  std::string username = request.username();
+
+  if (!ValidateUser(username)) {
+    LOG(ERROR) << "the user " << username << "is not registered" << std::endl;
+    return "the user is not registered";
+  }
+
   std::string root_id = request.warble_id();
+
+  std::string content =
+      kvstore_.Get(std::vector<std::string>(1, root_id + "_content"))[0];
+  if (content.empty()) {
+    return "read non-existing id";
+  }
+
   ReadReply reply;
   std::queue<std::string> q;
   q.push(root_id);
@@ -118,6 +162,12 @@ std::optional<std::string> WarbleServer::Profile(
   ProfileRequest request;
   payload.UnpackTo(&request);
   std::string username = request.username();
+
+  if (!ValidateUser(username)) {
+    LOG(ERROR) << "the user " << username << "is not registered" << std::endl;
+    return "the user is not registered";
+  }
+
   ProfileReply reply;
   std::string followings =
       kvstore_.Get(std::vector<std::string>(1, username + "_following"))[0];
@@ -149,4 +199,9 @@ bool WarbleServer::Check(std::stringstream& ss, const std::string& toCheck) {
     }
   }
   return exist;
+}
+bool WarbleServer::ValidateUser(const std::string& username) {
+  std::string usernames = kvstore_.Get(std::vector<std::string>(1, "users"))[0];
+  std::stringstream ss(usernames);
+  return Check(ss, username);
 }
