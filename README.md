@@ -118,7 +118,7 @@ make
 
 - After building the project, launch servers in the following order:
 ```
-./kvstore_server
+./kvstore_server [--store <file>]
 ./func
 ```
 - Then hook events, by default, hook all five events
