@@ -91,7 +91,10 @@ int main(int argc, char** argv) {
   } else if (!FLAGS_stream.empty()) {
     // eg: ./warble --user --stream "#helloworld"
     LOG(INFO) << "stream hashtag " << FLAGS_stream << std::endl;
-
+    StreamRequest request;
+    request.set_tag(FLAGS_stream);
+    payload->PackFrom(request);
+    userClient.Event(EVENT::STREAM, payload);
   } else {
     // wrong combinations of command line arguments, show usage information to
     // users
