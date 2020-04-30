@@ -189,6 +189,26 @@ std::optional<std::string> WarbleServer::Profile(
   return reply.SerializeAsString();
 }
 
+// stream all warbles with certain specified hashtag to client
+void WarbleServer::Stream(const google::protobuf::Any& payload) {
+  StreamRequest request;
+  payload.UnpackTo(&request);
+  std::string tag = request.tag();
+
+  // get latest warble with this hashtag
+  // (only worry about latest since we are streaming continuously)
+  while (true) {
+    std::this_thread::sleep_for(long_poll_interval);
+    auto* warble = new Warble();
+    warble->set_username("test_username");
+    warble->set_text("test_text");
+    warble->set_parent_id(0);
+
+    StreamReply reply;
+    reply.set_allocated_warble(warble);
+  }
+}
+
 bool WarbleServer::Check(std::stringstream& ss, const std::string& toCheck) {
   bool exist = false;
   std::string tmp;

@@ -77,6 +77,10 @@ Status FuncServiceImpl::event(ServerContext* context,
       WarbleReply warbleReply;
       warbleReply.ParseFromString(replyMessage.value());
       payload->PackFrom(warbleReply);
+    } else if (event_type == EVENT::STREAM) {
+      StreamReply streamReply;
+      streamReply.parseFromString(replyMessage.value());
+      payload->PackFrom(warbleReply);
     }
     reply->set_allocated_payload(payload);
   } else {

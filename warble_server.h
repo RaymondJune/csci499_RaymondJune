@@ -12,6 +12,8 @@
 #include "glog/logging.h"
 #include "kvstore_client.h"
 
+using std::literals::chrono_literals::operator""ms;
+
 using warble::FollowReply;
 using warble::FollowRequest;
 using warble::ProfileReply;
@@ -34,7 +36,8 @@ class WarbleServer {
                     {"warble", &WarbleServer::PublishWarble},
                     {"follow", &WarbleServer::Follow},
                     {"read", &WarbleServer::Read},
-                    {"profile", &WarbleServer::Profile}};
+                    {"profile", &WarbleServer::Profile},
+                    {"stream", &WarbleServer::Stream}};
 
   explicit WarbleServer(KeyValueStoreClient& client);
 
@@ -55,6 +58,12 @@ class WarbleServer {
   // return username's profile
   std::optional<std::string> Profile(const google::protobuf::Any& payload);
 
+  // start streaming warble's with hashtag specified in payload
+  // uses long polling as opposed to more event-driven models such as
+  // Producer-consumer architecture or observer pattern since that would
+  // require a rewrite of the entire server in grpc
+  void Stream(const google::protobuf::Any& payload);
+
  private:
   KeyValueStoreClient& kvstore_;
   // private helper function to check if the string toCheck exists in the
@@ -63,6 +72,9 @@ class WarbleServer {
 
   // private helper function to check if the user is registered
   bool ValidateUser(const std::string& username);
+
+  // frequency at which we ping server for new warbles matching tag
+  std::chrono::milliseconds long_poll_interval = 50ms;
 };
 
 #endif  // CS499_RAYMONDJUNE_WARBLE_SERVER_H

@@ -72,6 +72,8 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
       } else {
         std::cout << "reply message parse error" << std::endl;
       }
+    } else if (event_type == EVENT::STREAM) {
+      std::cout << "Streaming hashtag: " << request.tag() << std::endl;
     }
     return true;
   } else {
