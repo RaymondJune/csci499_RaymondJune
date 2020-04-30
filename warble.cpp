@@ -15,6 +15,7 @@ DEFINE_string(follow, "", "Starts following the given username");
 DEFINE_string(read, "", "Reads the warble thread starting at the given id");
 DEFINE_bool(profile, false,
             "Gets the user’s profile of following and followers");
+DEFINE_string(stream, "", "Hashtag that you wish to listen for");
 
 int main(int argc, char** argv) {
   UserClient userClient(grpc::CreateChannel(
@@ -87,6 +88,10 @@ int main(int argc, char** argv) {
     request.set_username(FLAGS_user);
     payload->PackFrom(request);
     userClient.Event(EVENT::PROFILE, payload);
+  } else if (!FLAGS_stream.empty()) {
+    // eg: ./warble --user --stream "#helloworld"
+    LOG(INFO) << "stream hashtag " << FLAGS_stream << std::endl;
+
   } else {
     // wrong combinations of command line arguments, show usage information to
     // users
