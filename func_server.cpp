@@ -34,57 +34,77 @@ Status FuncServiceImpl::event(ServerContext* context,
   int event_type = request->event_type();
   std::string event_function =
       kvstore_.Get(std::vector<std::string>(1, std::to_string(event_type)))[0];
+
   LOG(INFO) << "calling " << event_function << std::endl;
-  if (!event_function.empty()) {
-    auto* payload = new google::protobuf::Any();
-    std::optional<std::string> replyMessage =
-        (warbleServer_.*
-         (warbleServer_.function_map_[event_function]))(request->payload());
-    if (replyMessage != std::nullopt &&
-        replyMessage.value() == "the user is not registered") {
-      // user is not registered
-      return Status(StatusCode::PERMISSION_DENIED, replyMessage.value());
-    }
-    if (replyMessage != std::nullopt &&
-        replyMessage.value() == "the reply id is invalid") {
-      // reply id is invalid
-      return Status(StatusCode::NOT_FOUND, replyMessage.value());
-    }
-    if (replyMessage != std::nullopt &&
-        replyMessage.value() == "read non-existing id") {
-      // reply id is invalid
-      return Status(StatusCode::NOT_FOUND, replyMessage.value());
-    }
-    if (replyMessage != std::nullopt && event_type == EVENT::REGISTER) {
-      return Status(StatusCode::ALREADY_EXISTS, replyMessage.value());
-    }
-    if (replyMessage != std::nullopt && event_type == EVENT::FOLLOW) {
-      if (replyMessage.value() == "cannot follow yourself" ||
-          replyMessage.value() ==
-              "cannot follow because your target is not registered") {
-        return Status(StatusCode::INVALID_ARGUMENT, replyMessage.value());
-      }
-      return Status(StatusCode::ALREADY_EXISTS, replyMessage.value());
-    }
-    if (event_type == EVENT::PROFILE) {
-      ProfileReply profileReply;
-      profileReply.ParseFromString(replyMessage.value());
-      payload->PackFrom(profileReply);
-    } else if (event_type == EVENT::READ) {
-      ReadReply readReply;
-      readReply.ParseFromString(replyMessage.value());
-      payload->PackFrom(readReply);
-    } else if (event_type == EVENT::WARBLE) {
-      WarbleReply warbleReply;
-      warbleReply.ParseFromString(replyMessage.value());
-      payload->PackFrom(warbleReply);
-    }
-    EventReply reply;
-    reply->set_allocated_payload(payload);
-    writer->Write(reply);
-  } else {
-    // event is not hooked
+  if (event_function.empty()) {
     return Status(StatusCode::NOT_FOUND, "the event is not hooked");
   }
+
+  // potentially non terminating calls
+  if (event_type == EVENT::STREAM) {
+    EventReply reply;
+    StreamReply streamReply;
+
+    int curr_loop = 0;
+    int loop_max = 5;
+    while (curr_loop != loop_max) {
+      std::optional<std::string> replyMessage =
+          (warbleServer_.*
+           (warbleServer_.function_map_[event_function]))(request->payload());
+
+      streamReply.ParseFromString(replyMessage.value());
+      (&reply)->set_allocated_payload(payload);
+      writer->Write(reply);
+      curr_loop++;
+    }
+    return Status::OK;
+  }
+
+  auto* payload = new google::protobuf::Any();
+  std::optional<std::string> replyMessage =
+      (warbleServer_.*
+       (warbleServer_.function_map_[event_function]))(request->payload());
+  if (replyMessage != std::nullopt &&
+      replyMessage.value() == "the user is not registered") {
+    // user is not registered
+    return Status(StatusCode::PERMISSION_DENIED, replyMessage.value());
+  }
+  if (replyMessage != std::nullopt &&
+      replyMessage.value() == "the reply id is invalid") {
+    // reply id is invalid
+    return Status(StatusCode::NOT_FOUND, replyMessage.value());
+  }
+  if (replyMessage != std::nullopt &&
+      replyMessage.value() == "read non-existing id") {
+    // reply id is invalid
+    return Status(StatusCode::NOT_FOUND, replyMessage.value());
+  }
+  if (replyMessage != std::nullopt && event_type == EVENT::REGISTER) {
+    return Status(StatusCode::ALREADY_EXISTS, replyMessage.value());
+  }
+  if (replyMessage != std::nullopt && event_type == EVENT::FOLLOW) {
+    if (replyMessage.value() == "cannot follow yourself" ||
+        replyMessage.value() ==
+            "cannot follow because your target is not registered") {
+      return Status(StatusCode::INVALID_ARGUMENT, replyMessage.value());
+    }
+    return Status(StatusCode::ALREADY_EXISTS, replyMessage.value());
+  }
+  if (event_type == EVENT::PROFILE) {
+    ProfileReply profileReply;
+    profileReply.ParseFromString(replyMessage.value());
+    payload->PackFrom(profileReply);
+  } else if (event_type == EVENT::READ) {
+    ReadReply readReply;
+    readReply.ParseFromString(replyMessage.value());
+    payload->PackFrom(readReply);
+  } else if (event_type == EVENT::WARBLE) {
+    WarbleReply warbleReply;
+    warbleReply.ParseFromString(replyMessage.value());
+    payload->PackFrom(warbleReply);
+  }
+  EventReply reply;
+  (&reply)->set_allocated_payload(payload);
+  writer->Write(reply);
   return Status::OK;
 }

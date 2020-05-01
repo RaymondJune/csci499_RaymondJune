@@ -189,10 +189,17 @@ std::optional<std::string> WarbleServer::Profile(
   return reply.SerializeAsString();
 }
 
-// reaturn the latest warble with given hashtag (in the payload)
+// reaturn the latest warble with given hashtag
 std::optional<std::string> WarbleServer::Stream(
     const google::protobuf::Any& payload) {
-  return "test_string";
+  auto* warble = new Warble();
+  warble->set_username("test_user");
+  warble->set_text("test_string");
+  warble->set_parent_id(0);
+
+  StreamReply reply;
+  reply.set_allocated_warble(warble);
+  return reply.SerializeAsString();
 }
 
 bool WarbleServer::Check(std::stringstream& ss, const std::string& toCheck) {

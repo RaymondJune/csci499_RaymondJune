@@ -13,6 +13,7 @@
 
 using grpc::Channel;
 using grpc::ClientContext;
+using grpc::ClientReader;
 using grpc::ClientReaderWriter;
 using grpc::Status;
 
