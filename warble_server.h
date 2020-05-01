@@ -34,7 +34,8 @@ class WarbleServer {
                     {"warble", &WarbleServer::PublishWarble},
                     {"follow", &WarbleServer::Follow},
                     {"read", &WarbleServer::Read},
-                    {"profile", &WarbleServer::Profile}};
+                    {"profile", &WarbleServer::Profile},
+                    {"stream", &WarbleServer::Stream}};
 
   explicit WarbleServer(KeyValueStoreClient& client);
 
@@ -54,6 +55,9 @@ class WarbleServer {
 
   // return username's profile
   std::optional<std::string> Profile(const google::protobuf::Any& payload);
+
+  // read the latest warble with given hashtag and return it packed in payload
+  std::optional<std::string> Stream(const google::protobuf::Any& payload);
 
  private:
   KeyValueStoreClient& kvstore_;

@@ -29,7 +29,8 @@ Status FuncServiceImpl::unhook(ServerContext* context,
 }
 
 Status FuncServiceImpl::event(ServerContext* context,
-                              const EventRequest* request, EventReply* reply) {
+                              const EventRequest* request,
+                              ServerWriter<EventReply>* writer) {
   int event_type = request->event_type();
   std::string event_function =
       kvstore_.Get(std::vector<std::string>(1, std::to_string(event_type)))[0];
@@ -79,6 +80,7 @@ Status FuncServiceImpl::event(ServerContext* context,
       payload->PackFrom(warbleReply);
     }
     reply->set_allocated_payload(payload);
+    writer->Write(reply);
   } else {
     // event is not hooked
     return Status(StatusCode::NOT_FOUND, "the event is not hooked");

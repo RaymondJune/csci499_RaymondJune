@@ -21,7 +21,16 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
   ClientContext context;
 
   // The actual RPC.
-  Status status = stub_->event(&context, request, &reply);
+  std::unique_ptr<ClientReader<EventReply> > reader(
+      stub_->event(&context, request));
+
+  // read the response into reply
+  while (reader->Read(&reply)) {
+    // need to handle potentially non-terminating calls such as stream here
+    // because we might not get a status in response (e.g. in the handling of
+    // calls that are guaranteed to terminate shown below)
+  }
+  Status status = reader->Finish();
 
   // Act upon its status.
   if (status.ok()) {
@@ -81,3 +90,31 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
     return false;
   }
 }
+
+// void UserClient::TrackEvent(int event_type, google::protobuf::Any* payload)
+// {
+//   EventRequest request;
+//   request.set_event_type(event_type);
+//   request.set_allocated_payload(payload);
+//   EventReply reply;
+
+//   // Context for the client. It could be used to convey extra information
+//   to
+//   // the server and/or tweak certain RPC behaviors.
+//   ClientContext context;
+
+//   // make the RPC call
+//   std::unique_ptr<ClientReader<EventReply> > reader(
+//       stub_->ListFeatures(&context, request));
+
+//   while (reader->Read(&reply)) {
+//     std::cout << "Client read reply: " << std::endl;
+//     std::cout << reply.warble().text() << std::endl;
+//   }
+//   Status status = reader->Finish();
+//   if (status.ok()) {
+//     std::cout << "TrackEvent rpc succeeded." << std::endl;
+//   } else {
+//     std::cout << "TrackEvent rpc failed." << std::endl;
+//   }
+// }

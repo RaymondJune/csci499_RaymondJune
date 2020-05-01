@@ -28,6 +28,8 @@ using warble::ReadReply;
 using warble::ReadRequest;
 using warble::RegisteruserReply;
 using warble::RegisteruserRequest;
+using warble::StreamReply;
+using warble::StreamRequest;
 using warble::WarbleReply;
 using warble::WarbleRequest;
 
