@@ -79,6 +79,7 @@ Status FuncServiceImpl::event(ServerContext* context,
       warbleReply.ParseFromString(replyMessage.value());
       payload->PackFrom(warbleReply);
     }
+    EventReply reply;
     reply->set_allocated_payload(payload);
     writer->Write(reply);
   } else {
