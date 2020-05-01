@@ -62,7 +62,7 @@ class WarbleServer {
   // uses long polling as opposed to more event-driven models such as
   // Producer-consumer architecture or observer pattern since that would
   // require a rewrite of the entire server in grpc
-  void Stream(const google::protobuf::Any& payload);
+  std::optional<std::string> Stream(const google::protobuf::Any& payload);
 
  private:
   KeyValueStoreClient& kvstore_;

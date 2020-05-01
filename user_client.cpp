@@ -20,7 +20,22 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
   // the server and/or tweak certain RPC behaviors.
   ClientContext context;
 
-  // The actual RPC.
+  // possibly non-terminating calls such as stream go here as their logic is
+  // different
+  if (event_type == EVENT::STREAM) {
+    Status status = stub_->event(&context, request, &reply);
+    std::cout << "Streaming warbles with hashtag: " << request.tag()
+              << std::endl;
+    StreamReply streamReply;
+    while (event->Read(&reply)) {
+      reply.payload().UnpackTo(&streamReply);
+      std::cout << "Returned warble!" << std::endl;
+      std::cout << streamReply.warble().text() << std::endl;
+    }
+    return true;
+  }
+
+  // terminating calls go here
   Status status = stub_->event(&context, request, &reply);
 
   // Act upon its status.
@@ -72,8 +87,6 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
       } else {
         std::cout << "reply message parse error" << std::endl;
       }
-    } else if (event_type == EVENT::STREAM) {
-      std::cout << "Streaming hashtag: " << request.tag() << std::endl;
     }
     return true;
   } else {
