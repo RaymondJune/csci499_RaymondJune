@@ -12,13 +12,13 @@ DEFINE_bool(hook, true,
             "event type");
 DEFINE_string(events, "0,1,2,3,4,5",
               "a string of event types seperated by comma to hook/unhook, only "
-              "0,1,2,3,4 are allowed at present, 0: registeruser, 1: warble, "
+              "0,1,2,3,4,5 are allowed at present, 0: registeruser, 1: warble, "
               "2: follow, 3: read, 4: profile, 5: stream");
 
 static bool IsValidEvents(const char *flagname, const std::string &value) {
   size_t i = 0;
   while (i < value.size()) {
-    if (i % 2 == 0 && !(value[i] >= '0' && value[i] <= '4')) return false;
+    if (i % 2 == 0 && !(value[i] >= '0' && value[i] <= '5')) return false;
     if (i % 2 == 1 && value[i] != ',') return false;
     i++;
   }

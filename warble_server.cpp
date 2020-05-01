@@ -192,10 +192,9 @@ std::optional<std::string> WarbleServer::Profile(
 // reaturn the latest warble with given hashtag
 std::optional<std::string> WarbleServer::Stream(
     const google::protobuf::Any& payload) {
+  std::cout << "calling warble_server stream" << std::endl;
   auto* warble = new Warble();
-  warble->set_username("test_user");
   warble->set_text("test_string");
-  warble->set_parent_id(0);
 
   StreamReply reply;
   reply.set_allocated_warble(warble);

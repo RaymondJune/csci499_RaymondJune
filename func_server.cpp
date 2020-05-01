@@ -40,6 +40,7 @@ Status FuncServiceImpl::event(ServerContext* context,
     return Status(StatusCode::NOT_FOUND, "the event is not hooked");
   }
 
+  auto* payload = new google::protobuf::Any();
   // potentially non terminating calls
   if (event_type == EVENT::STREAM) {
     EventReply reply;
@@ -52,6 +53,8 @@ Status FuncServiceImpl::event(ServerContext* context,
           (warbleServer_.*
            (warbleServer_.function_map_[event_function]))(request->payload());
 
+      std::cout << "IN SERVER: Received message: " << replyMessage.value()
+                << std::endl;
       streamReply.ParseFromString(replyMessage.value());
       (&reply)->set_allocated_payload(payload);
       writer->Write(reply);
@@ -60,7 +63,6 @@ Status FuncServiceImpl::event(ServerContext* context,
     return Status::OK;
   }
 
-  auto* payload = new google::protobuf::Any();
   std::optional<std::string> replyMessage =
       (warbleServer_.*
        (warbleServer_.function_map_[event_function]))(request->payload());
