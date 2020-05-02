@@ -24,8 +24,11 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
   std::unique_ptr<ClientReader<EventReply> > reader(
       stub_->event(&context, request));
 
+  int itercnt = 0;
   // read the response into reply object
   while (reader->Read(&reply)) {
+    itercnt++;
+
     const google::protobuf::Any& replyPayload = reply.payload();
     bool canParse;
 
@@ -37,8 +40,6 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
       std::cout << "Streaming Warble! " << std::endl;
       std::cout << "the warble content is: " << std::endl;
       std::cout << streamReply.warble().text() << std::endl;
-      std::cout << "the warble id is: " << std::endl;
-      std::cout << streamReply.warble().id() << std::endl;
       continue;
     }
 

@@ -66,6 +66,7 @@ std::optional<std::string> WarbleServer::PublishWarble(
   warble->set_id("warble_id_" + std::to_string(us));
   warble->set_allocated_timestamp(timestamp);
 
+  // TODO: Parse hashtags in warble and add to kvstore as hashtag->warble pair
   kvstore_.Put(warble->id() + "_content", warble->SerializeAsString());
   std::string son_ids = kvstore_.Get(std::vector<std::string>(1, parent_id))[0];
   kvstore_.Put(parent_id, son_ids + " " + warble->id());
@@ -192,12 +193,9 @@ std::optional<std::string> WarbleServer::Profile(
 // reaturn the latest warble with given hashtag
 std::optional<std::string> WarbleServer::Stream(
     const google::protobuf::Any& payload) {
-  std::cout << "calling warble_server stream" << std::endl;
-  auto* warble = new Warble();
-  warble->set_text("test_string");
-
+  // TODO: Get latest warble with tag from kvstore
   StreamReply reply;
-  reply.set_allocated_warble(warble);
+  (&reply)->mutable_warble()->set_text("text warble");
   return reply.SerializeAsString();
 }
 
