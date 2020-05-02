@@ -24,11 +24,8 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
   std::unique_ptr<ClientReader<EventReply> > reader(
       stub_->event(&context, request));
 
-  int itercnt = 0;
   // read the response into reply object
   while (reader->Read(&reply)) {
-    itercnt++;
-
     const google::protobuf::Any& replyPayload = reply.payload();
     bool canParse;
 

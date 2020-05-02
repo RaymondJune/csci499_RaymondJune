@@ -34,8 +34,8 @@ Status FuncServiceImpl::event(ServerContext* context,
   int event_type = request->event_type();
   std::string event_function =
       kvstore_.Get(std::vector<std::string>(1, std::to_string(event_type)))[0];
-
   LOG(INFO) << "calling " << event_function << std::endl;
+
   if (event_function.empty()) {
     return Status(StatusCode::NOT_FOUND, "the event is not hooked");
   }
@@ -44,11 +44,12 @@ Status FuncServiceImpl::event(ServerContext* context,
   if (event_type == EVENT::STREAM) {
     int curr_loop = 0;
     int loop_max = 5;
+    EventReply reply;
+    StreamReply streamReply;
     while (curr_loop != loop_max) {
       auto* payload = new google::protobuf::Any();
-      EventReply reply;
-      StreamReply streamReply;
 
+      // make the call for latest streamed warble
       std::optional<std::string> replyMessage =
           (warbleServer_.*
            (warbleServer_.function_map_[event_function]))(request->payload());
