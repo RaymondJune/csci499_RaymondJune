@@ -190,7 +190,7 @@ std::optional<std::string> WarbleServer::Profile(
   return reply.SerializeAsString();
 }
 
-// reaturn the latest warble with given hashtag
+// return the latest warble with given hashtag
 std::optional<std::string> WarbleServer::Stream(
     const google::protobuf::Any& payload) {
   // TODO: Get latest warble with tag from kvstore

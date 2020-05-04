@@ -40,29 +40,6 @@ Status FuncServiceImpl::event(ServerContext* context,
     return Status(StatusCode::NOT_FOUND, "the event is not hooked");
   }
 
-  // potentially non terminating calls
-  if (event_type == EVENT::STREAM) {
-    int curr_loop = 0;
-    int loop_max = 5;
-    EventReply reply;
-    StreamReply streamReply;
-    while (curr_loop != loop_max) {
-      auto* payload = new google::protobuf::Any();
-
-      // make the call for latest streamed warble
-      std::optional<std::string> replyMessage =
-          (warbleServer_.*
-           (warbleServer_.function_map_[event_function]))(request->payload());
-
-      streamReply.ParseFromString(replyMessage.value());
-      payload->PackFrom(streamReply);
-      reply.set_allocated_payload(payload);
-      writer->Write(reply);
-      curr_loop++;
-    }
-    return Status::OK;
-  }
-
   auto* payload = new google::protobuf::Any();
   std::optional<std::string> replyMessage =
       (warbleServer_.*
@@ -93,7 +70,31 @@ Status FuncServiceImpl::event(ServerContext* context,
     }
     return Status(StatusCode::ALREADY_EXISTS, replyMessage.value());
   }
-  if (event_type == EVENT::PROFILE) {
+  // potentially non terminating calls
+  if (event_type == EVENT::STREAM) {
+    int curr_loop = 0;
+    int loop_max = 5;
+    EventReply reply;
+    StreamReply streamReply;
+    while (curr_loop != loop_max) {
+      auto* payload = new google::protobuf::Any();
+
+      if (replyMessage != std::nullopt) {
+        streamReply.ParseFromString(replyMessage.value());
+        payload->PackFrom(streamReply);
+        reply.set_allocated_payload(payload);
+        writer->Write(reply);
+      }
+
+      // make the call for latest streamed warble
+      replyMessage =
+          (warbleServer_.*
+           (warbleServer_.function_map_[event_function]))(request->payload());
+
+      curr_loop++;
+    }
+    return Status::OK;
+  } else if (event_type == EVENT::PROFILE) {
     ProfileReply profileReply;
     profileReply.ParseFromString(replyMessage.value());
     payload->PackFrom(profileReply);

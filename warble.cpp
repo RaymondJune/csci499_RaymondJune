@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     request.set_username(FLAGS_user);
     payload->PackFrom(request);
     userClient.Event(EVENT::PROFILE, payload);
-  } else if (!FLAGS_stream.empty()) {
+  } else if (!FLAGS_stream.empty() && FLAGS_stream.at(0) == '#') {
     // eg: ./warble --user alice --stream "#helloworld"
     LOG(INFO) << "streaming hashtag " << FLAGS_stream << std::endl;
     StreamRequest request;
