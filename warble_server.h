@@ -69,6 +69,9 @@ class WarbleServer {
 
   // private helper function to check if the user is registered
   bool ValidateUser(const std::string& username);
+
+  // get all hashtags present in warble
+  std::vector<std::string> GetHashtags(const Warble& warble);
 };
 
 #endif  // CS499_RAYMONDJUNE_WARBLE_SERVER_H

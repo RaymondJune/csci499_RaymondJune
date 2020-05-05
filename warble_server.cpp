@@ -5,7 +5,12 @@
 #include "warble_server.h"
 
 #include <queue>
+#include <regex>
 #include <sstream>
+
+using std::regex;
+using std::smatch;
+using std::sregex_iterator;
 
 WarbleServer::WarbleServer(KeyValueStoreClient& client) : kvstore_(client) {}
 
@@ -67,6 +72,12 @@ std::optional<std::string> WarbleServer::PublishWarble(
   warble->set_allocated_timestamp(timestamp);
 
   // TODO: Parse hashtags in warble and add to kvstore as hashtag->warble pair
+  std::vector<std::string> warble_tags = GetHashtags(*warble);
+  for (const auto& tag : warble_tags) {
+    std::cout << "Found Tag: " << tag << std::endl;
+    kvstore_.Put(tag + "_tag", warble->SerializeAsString());
+  }
+
   kvstore_.Put(warble->id() + "_content", warble->SerializeAsString());
   std::string son_ids = kvstore_.Get(std::vector<std::string>(1, parent_id))[0];
   kvstore_.Put(parent_id, son_ids + " " + warble->id());
@@ -215,4 +226,18 @@ bool WarbleServer::ValidateUser(const std::string& username) {
   std::string usernames = kvstore_.Get(std::vector<std::string>(1, "users"))[0];
   std::stringstream ss(usernames);
   return Check(ss, username);
+}
+
+std::vector<std::string> WarbleServer::GetHashtags(const Warble& warble) {
+  std::string warble_text = warble.text();
+  regex pattern("#\\w+");
+  std::sregex_iterator next(warble_text.begin(), warble_text.end(), pattern);
+  std::sregex_iterator end;
+  std::vector<std::string> tags;
+  while (next != end) {
+    std::smatch match = *next;
+    tags.push_back(match.str());
+    next++;
+  }
+  return tags;
 }
