@@ -71,10 +71,11 @@ std::optional<std::string> WarbleServer::PublishWarble(
   warble->set_id("warble_id_" + std::to_string(us));
   warble->set_allocated_timestamp(timestamp);
 
-  // TODO: Parse hashtags in warble and add to kvstore as hashtag->warble pair
   std::vector<std::string> warble_tags = GetHashtags(*warble);
   for (const auto& tag : warble_tags) {
-    std::cout << "Found Tag: " << tag << std::endl;
+    LOG(INFO) << "Found Tag: " << tag << std::endl;
+    // only want latest tag, remove outdated ones
+    kvstore_.Remove(tag + "_tag");
     kvstore_.Put(tag + "_tag", warble->SerializeAsString());
   }
 
@@ -204,9 +205,42 @@ std::optional<std::string> WarbleServer::Profile(
 // return the latest warble with given hashtag
 std::optional<std::string> WarbleServer::Stream(
     const google::protobuf::Any& payload) {
-  // TODO: Get latest warble with tag from kvstore
+  StreamRequest request;
+  payload.UnpackTo(&request);
+
+  Warble* warble = new Warble();
+  bool valid_warble = (*warble).ParseFromString(
+      kvstore_.Get(std::vector<std::string>(1, request.tag() + "_tag"))[0]);
+
+  // did not find warbles with this hashtag
+  if (!valid_warble) {
+    // grpc does not deallocate for us if we don't set_allocated
+    delete warble;
+    return std::nullopt;
+  }
+
+  // found a warble but it isn't the latest so don't stream again or was warbled
+  // before streamrequest was made
+  std::vector<std::string> time_history =
+      kvstore_.Get(std::vector<std::string>(1, request.tag() + "_timestamp"));
+
+  if (time_history.size() != 0) {
+    Timestamp latest_streamed_timestamp;
+    latest_streamed_timestamp.ParseFromString(time_history[0]);
+    if ((warble->timestamp().useconds() <=
+         latest_streamed_timestamp.useconds()) ||
+        (request.timestamp().useconds() > warble->timestamp().useconds())) {
+      delete warble;
+      return std::nullopt;
+    }
+  }
+
   StreamReply reply;
-  (&reply)->mutable_warble()->set_text("text warble");
+  (&reply)->set_allocated_warble(warble);
+  // keep track that this is the latest warble we stream
+  kvstore_.Put(request.tag() + "_timestamp",
+               (warble->timestamp()).SerializeAsString());
+
   return reply.SerializeAsString();
 }
 

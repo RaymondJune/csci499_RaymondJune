@@ -72,11 +72,9 @@ Status FuncServiceImpl::event(ServerContext* context,
   }
   // potentially non terminating calls
   if (event_type == EVENT::STREAM) {
-    int curr_loop = 0;
-    int loop_max = 5;
     EventReply reply;
     StreamReply streamReply;
-    while (curr_loop != loop_max) {
+    while (true) {
       auto* payload = new google::protobuf::Any();
 
       if (replyMessage != std::nullopt) {
@@ -90,8 +88,6 @@ Status FuncServiceImpl::event(ServerContext* context,
       replyMessage =
           (warbleServer_.*
            (warbleServer_.function_map_[event_function]))(request->payload());
-
-      curr_loop++;
     }
     return Status::OK;
   } else if (event_type == EVENT::PROFILE) {

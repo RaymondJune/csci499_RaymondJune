@@ -92,7 +92,16 @@ int main(int argc, char** argv) {
     // eg: ./warble --user alice --stream "#helloworld"
     LOG(INFO) << "streaming hashtag " << FLAGS_stream << std::endl;
     StreamRequest request;
+
     request.set_tag(FLAGS_stream);
+    auto* timestamp = new warble::Timestamp();
+    int64_t us = std::chrono::duration_cast<std::chrono::microseconds>(
+                     std::chrono::system_clock::now().time_since_epoch())
+                     .count();
+    timestamp->set_useconds(us);
+    timestamp->set_seconds(us / 1000000);
+    request.set_allocated_timestamp(timestamp);
+
     payload->PackFrom(request);
     userClient.Event(EVENT::STREAM, payload);
   } else {
