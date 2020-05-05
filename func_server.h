@@ -15,6 +15,7 @@ using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::ServerReaderWriter;
+using grpc::ServerWriter;
 using grpc::Status;
 using grpc::StatusCode;
 
@@ -45,7 +46,7 @@ class FuncServiceImpl final : public FuncService::Service {
 
   // event gRPC call in server side
   Status event(ServerContext* context, const EventRequest* request,
-               EventReply* reply) override;
+               ServerWriter<EventReply>* writer) override;
 
  private:
   KeyValueStoreClient kvstore_;

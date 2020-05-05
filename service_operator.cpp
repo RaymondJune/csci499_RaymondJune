@@ -10,15 +10,15 @@ DEFINE_bool(default, false, "default to hook all five event types");
 DEFINE_bool(hook, true,
             "hook event type to event function, when set to false, unhook the "
             "event type");
-DEFINE_string(events, "0,1,2,3,4",
+DEFINE_string(events, "0,1,2,3,4,5",
               "a string of event types seperated by comma to hook/unhook, only "
-              "0,1,2,3,4 are allowed at present, 0: registeruser, 1: warble, "
-              "2: follow, 3: read, 4: profile");
+              "0,1,2,3,4,5 are allowed at present, 0: registeruser, 1: warble, "
+              "2: follow, 3: read, 4: profile, 5: stream");
 
 static bool IsValidEvents(const char *flagname, const std::string &value) {
   size_t i = 0;
   while (i < value.size()) {
-    if (i % 2 == 0 && !(value[i] >= '0' && value[i] <= '4')) return false;
+    if (i % 2 == 0 && !(value[i] >= '0' && value[i] <= '5')) return false;
     if (i % 2 == 1 && value[i] != ',') return false;
     i++;
   }
@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
       "usage example: ./bootstrap [--default] | [--hook=false --event 0]");
   gflags::SetVersionString("1.0.0");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  std::string event_functions[] = {"registeruser", "warble", "follow", "read",
-                                   "profile"};
+  std::string event_functions[] = {"registeruser", "warble",  "follow",
+                                   "read",         "profile", "stream"};
   if (FLAGS_default) {
     LOG(INFO) << "default hooking..." << std::endl;
     bootstrap.Hook(EVENT::REGISTER, event_functions[EVENT::REGISTER]);
@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
     bootstrap.Hook(EVENT::FOLLOW, event_functions[EVENT::FOLLOW]);
     bootstrap.Hook(EVENT::READ, event_functions[EVENT::READ]);
     bootstrap.Hook(EVENT::PROFILE, event_functions[EVENT::PROFILE]);
+    bootstrap.Hook(EVENT::STREAM, event_functions[EVENT::STREAM]);
   } else if (FLAGS_hook) {
     LOG(INFO) << "user defined hooking..." << std::endl;
     size_t i = 0;

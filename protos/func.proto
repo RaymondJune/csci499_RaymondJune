@@ -41,5 +41,5 @@ message EventReply {
 service FuncService {
     rpc hook (HookRequest) returns (HookReply) {}
     rpc unhook (UnhookRequest) returns (UnhookReply) {}
-    rpc event (EventRequest) returns (EventReply) {}
+    rpc event (EventRequest) returns (stream EventReply) {}
 }

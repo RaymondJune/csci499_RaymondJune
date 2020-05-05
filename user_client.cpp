@@ -21,12 +21,35 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
   ClientContext context;
 
   // The actual RPC.
-  Status status = stub_->event(&context, request, &reply);
+  std::unique_ptr<ClientReader<EventReply> > reader(
+      stub_->event(&context, request));
 
-  // Act upon its status.
-  if (status.ok()) {
+  // read the response into reply object
+  while (reader->Read(&reply)) {
     const google::protobuf::Any& replyPayload = reply.payload();
     bool canParse;
+
+    // stream has different processing logic as it is incapable of
+    // returning an OK status since it is a potentially non-terminating call
+    if (event_type == EVENT::STREAM) {
+      StreamReply streamReply;
+      canParse = replyPayload.UnpackTo(&streamReply);
+      std::cout << "Streaming Warble! " << std::endl;
+      std::cout << "the warble content is: " << std::endl;
+      std::cout << streamReply.warble().text() << std::endl;
+      continue;
+    }
+
+    // Return false if in error (reader isn't finished is not an error in a
+    // non-terminating call like stream.)
+    Status status = reader->Finish();
+    if (!status.ok()) {
+      LOG(ERROR) << status.error_code() << ": " << status.error_message()
+                 << std::endl;
+      std::cout << status.error_message() << std::endl;
+      return false;
+    }
+
     // TODO: deal with different reply messages
     if (event_type == EVENT::REGISTER) {
       std::cout << "successfully registed your username" << std::endl;
@@ -72,12 +95,7 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
       } else {
         std::cout << "reply message parse error" << std::endl;
       }
+      return true;
     }
-    return true;
-  } else {
-    LOG(ERROR) << status.error_code() << ": " << status.error_message()
-               << std::endl;
-    std::cout << status.error_message() << std::endl;
-    return false;
   }
 }
