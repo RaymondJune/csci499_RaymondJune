@@ -93,6 +93,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "streaming hashtag " << FLAGS_stream << std::endl;
     StreamRequest request;
 
+    request.set_username(FLAGS_user);
     request.set_tag(FLAGS_stream);
     auto* timestamp = new warble::Timestamp();
     int64_t us = std::chrono::duration_cast<std::chrono::microseconds>(

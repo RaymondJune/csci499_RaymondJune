@@ -207,6 +207,11 @@ std::optional<std::string> WarbleServer::Stream(
     const google::protobuf::Any& payload) {
   StreamRequest request;
   payload.UnpackTo(&request);
+  if (!ValidateUser(request.username())) {
+    LOG(ERROR) << "the user " << request.username() << "is not registered"
+               << std::endl;
+    return "the user is not registered";
+  }
 
   Warble* warble = new Warble();
   bool valid_warble = (*warble).ParseFromString(
