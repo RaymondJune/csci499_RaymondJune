@@ -6,6 +6,7 @@
 #define CS499_RAYMONDJUNE_FUNC_SERVER_H
 
 #include <grpcpp/grpcpp.h>
+#include <thread>
 
 #include "build/func.grpc.pb.h"
 #include "kvstore_client.h"

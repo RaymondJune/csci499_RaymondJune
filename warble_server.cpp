@@ -5,7 +5,12 @@
 #include "warble_server.h"
 
 #include <queue>
+#include <regex>
 #include <sstream>
+
+using std::regex;
+using std::smatch;
+using std::sregex_iterator;
 
 WarbleServer::WarbleServer(KeyValueStoreClient& client) : kvstore_(client) {}
 
@@ -66,7 +71,12 @@ std::optional<std::string> WarbleServer::PublishWarble(
   warble->set_id("warble_id_" + std::to_string(us));
   warble->set_allocated_timestamp(timestamp);
 
-  // TODO: Parse hashtags in warble and add to kvstore as hashtag->warble pair
+  std::vector<std::string> warble_tags = GetHashtags(*warble);
+  for (const auto& tag : warble_tags) {
+    kvstore_.Remove(tag + "_tag");
+    kvstore_.Put(tag + "_tag", warble->SerializeAsString());
+  }
+
   kvstore_.Put(warble->id() + "_content", warble->SerializeAsString());
   std::string son_ids = kvstore_.Get(std::vector<std::string>(1, parent_id))[0];
   kvstore_.Put(parent_id, son_ids + " " + warble->id());
@@ -193,9 +203,40 @@ std::optional<std::string> WarbleServer::Profile(
 // return the latest warble with given hashtag
 std::optional<std::string> WarbleServer::Stream(
     const google::protobuf::Any& payload) {
-  // TODO: Get latest warble with tag from kvstore
+  StreamRequest request;
+  payload.UnpackTo(&request);
+  if (!ValidateUser(request.username())) {
+    LOG(ERROR) << "the user " << request.username() << "is not registered";
+    return "the user is not registered";
+  }
+  Warble* warble = new Warble();
+  bool valid_warble = (*warble).ParseFromString(
+      kvstore_.Get(std::vector<std::string>(1, request.tag() + "_tag"))[0]);
+
+  // did not find warbles with this hashtag
+  if (!valid_warble) {
+    delete warble;
+    return std::nullopt;
+  }
+  // found a warble but it isn't the latest so don't stream
+  std::vector<std::string> time_history =
+      kvstore_.Get(std::vector<std::string>(1, request.tag() + "_timestamp"));
+
+  if (time_history.size() != 0) {
+    Timestamp latest_streamed_timestamp;
+    latest_streamed_timestamp.ParseFromString(time_history[0]);
+    if ((warble->timestamp().useconds() <=
+         latest_streamed_timestamp.useconds()) ||
+        (request.timestamp().useconds() > warble->timestamp().useconds())) {
+      delete warble;
+      return std::nullopt;
+    }
+  }
   StreamReply reply;
-  (&reply)->mutable_warble()->set_text("text warble");
+  (&reply)->set_allocated_warble(warble);
+  // keep track that this is the latest warble we stream
+  kvstore_.Put(request.tag() + "_timestamp",
+               (warble->timestamp()).SerializeAsString());
   return reply.SerializeAsString();
 }
 
@@ -215,4 +256,18 @@ bool WarbleServer::ValidateUser(const std::string& username) {
   std::string usernames = kvstore_.Get(std::vector<std::string>(1, "users"))[0];
   std::stringstream ss(usernames);
   return Check(ss, username);
+}
+
+std::vector<std::string> WarbleServer::GetHashtags(const Warble& warble) {
+  std::string warble_text = warble.text();
+  regex pattern("#\\w+");
+  std::sregex_iterator next(warble_text.begin(), warble_text.end(), pattern);
+  std::sregex_iterator end;
+  std::vector<std::string> tags;
+  while (next != end) {
+    std::smatch match = *next;
+    tags.push_back(match.str());
+    next++;
+  }
+  return tags;
 }

@@ -63,6 +63,8 @@ message ProfileReply {
 
 message StreamRequest {
     string tag = 1;
+    Timestamp timestamp = 2;
+    string username = 3;
 }
 
 message StreamReply {

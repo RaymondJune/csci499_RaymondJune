@@ -34,9 +34,9 @@ bool UserClient::Event(int event_type, google::protobuf::Any* payload) {
     if (event_type == EVENT::STREAM) {
       StreamReply streamReply;
       canParse = replyPayload.UnpackTo(&streamReply);
-      std::cout << "Streaming Warble! " << std::endl;
-      std::cout << "the warble content is: " << std::endl;
       std::cout << streamReply.warble().text() << std::endl;
+      std::cout << "the warble id is:" << std::endl;
+      std::cout << streamReply.warble().id() << std::endl;
       continue;
     }
 

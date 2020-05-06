@@ -61,6 +61,9 @@ class WarbleServer {
   // read the latest warble with given hashtag and return it packed in payload
   std::optional<std::string> Stream(const google::protobuf::Any& payload);
 
+  // get all hashtags present in warble delimited by space
+  std::vector<std::string> GetHashtags(const Warble& warble);
+
  private:
   KeyValueStoreClient& kvstore_;
   // private helper function to check if the string toCheck exists in the
