@@ -73,8 +73,6 @@ std::optional<std::string> WarbleServer::PublishWarble(
 
   std::vector<std::string> warble_tags = GetHashtags(*warble);
   for (const auto& tag : warble_tags) {
-    LOG(INFO) << "Found Tag: " << tag << std::endl;
-    // only want latest tag, remove outdated ones
     kvstore_.Remove(tag + "_tag");
     kvstore_.Put(tag + "_tag", warble->SerializeAsString());
   }
@@ -208,24 +206,19 @@ std::optional<std::string> WarbleServer::Stream(
   StreamRequest request;
   payload.UnpackTo(&request);
   if (!ValidateUser(request.username())) {
-    LOG(ERROR) << "the user " << request.username() << "is not registered"
-               << std::endl;
+    LOG(ERROR) << "the user " << request.username() << "is not registered";
     return "the user is not registered";
   }
-
   Warble* warble = new Warble();
   bool valid_warble = (*warble).ParseFromString(
       kvstore_.Get(std::vector<std::string>(1, request.tag() + "_tag"))[0]);
 
   // did not find warbles with this hashtag
   if (!valid_warble) {
-    // grpc does not deallocate for us if we don't set_allocated
     delete warble;
     return std::nullopt;
   }
-
-  // found a warble but it isn't the latest so don't stream again or was warbled
-  // before streamrequest was made
+  // found a warble but it isn't the latest so don't stream
   std::vector<std::string> time_history =
       kvstore_.Get(std::vector<std::string>(1, request.tag() + "_timestamp"));
 
@@ -239,13 +232,11 @@ std::optional<std::string> WarbleServer::Stream(
       return std::nullopt;
     }
   }
-
   StreamReply reply;
   (&reply)->set_allocated_warble(warble);
   // keep track that this is the latest warble we stream
   kvstore_.Put(request.tag() + "_timestamp",
                (warble->timestamp()).SerializeAsString());
-
   return reply.SerializeAsString();
 }
 

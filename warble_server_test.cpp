@@ -2,12 +2,10 @@
 #include <unordered_set>
 
 #include <gtest/gtest.h>
-
 #include <iostream>
 
 // unit tests for stream feature of Warble Server
-// It only tests GetHashtags because the rest of the Stream functionality is
-// either:
+// It only tests GetHashtags because the rest of the Stream functionality is:
 // 1) Tested by store_test (GETs and PUTs)
 // 2) is not to be tested (GRPC calls)
 class WarbleServerStreamTest : public ::testing::Test {
@@ -25,15 +23,12 @@ class WarbleServerStreamTest : public ::testing::Test {
     delete kv_client_;
     delete warble_server_;
   }
-  // we don't actually connect to this, it is only a placeholder
-  KeyValueStoreClient* kv_client_;
-
-  // WarbleServer is a backend class for func_server so testing it this way is
-  // appropriate. Testing the associated KeyValueStoreClient, however, is better
+  // Testing the associated KeyValueStoreClient, however, is better
   // done through a special testing class which inherits a common interface
   // with KeyValueStoreClient. I did not implement it that way because it would
   // mean refactoring the entire exiting service with this new interface which
   // does not seem worth the tradeoff for a testing only a single extra feature.
+  KeyValueStoreClient* kv_client_;
   WarbleServer* warble_server_;
 };
 
@@ -42,7 +37,6 @@ TEST_F(WarbleServerStreamTest, GetHashtagsGetsAllHashtags) {
   Warble warble;
   warble.set_text("Should identify #this hashtag as well as #that hashtag");
   std::vector<std::string> hashtags = warble_server_->GetHashtags(warble);
-
   std::unordered_set<std::string> s_hashtags;
   for (auto const& s : hashtags) {
     s_hashtags.insert(s);
